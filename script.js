@@ -135,9 +135,6 @@ function editCard(boardId, listId, cardId) {
     const newDescription = prompt('Modifier la description de la carte:', card.description);
     if (newDescription !== null) card.description = newDescription;
 
-    const newColor = prompt('Modifier la couleur de la carte (classes Tailwind, ex: bg-red-500):', card.color);
-    if (newColor !== null) card.color = newColor;
-
     saveBoards(boards);
     renderBoards();
 }
