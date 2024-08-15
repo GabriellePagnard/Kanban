@@ -36,10 +36,12 @@ function createCard(boardId, listId) {
     const cardText = prompt('Entrez le texte de la carte :');
     if (!cardText) return;
 
+    const cardDescription = prompt('Entrez une description pour la carte :');
+
     const card = {
         id: Date.now(),
         text: cardText,
-        description: '',
+        description: cardDescription || '',
         color: 'bg-white'
     };
 
@@ -116,8 +118,19 @@ function renderBoards() {
             list.cards.forEach(card => {
                 const cardElement = document.createElement('div');
                 cardElement.className = `card p-2 mt-2 rounded shadow ${card.color}`;
-                cardElement.textContent = card.text;
                 cardElement.draggable = true;
+
+                const cardText = document.createElement('div');
+                cardText.textContent = card.text;
+
+                const cardDescription = document.createElement('div');
+                cardDescription.className = 'card-description';
+                cardDescription.textContent = card.description;
+
+                cardElement.appendChild(cardText);
+                if (card.description) {
+                    cardElement.appendChild(cardDescription);
+                }
 
                 cardElement.addEventListener('dragstart', () => {
                     cardElement.classList.add('dragging');
@@ -135,8 +148,11 @@ function renderBoards() {
             listElement.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 const draggingCard = document.querySelector('.dragging');
-                if (draggingCard) {
+                const afterElement = getDragAfterElement(listElement, e.clientY);
+                if (afterElement == null) {
                     listElement.appendChild(draggingCard);
+                } else {
+                    listElement.insertBefore(draggingCard, afterElement);
                 }
             });
 
@@ -145,6 +161,20 @@ function renderBoards() {
 
         boardsContainer.appendChild(boardElement);
     });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
 function getBoards() {
