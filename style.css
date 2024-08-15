@@ -1,3 +1,4 @@
+/* Style global */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f5f7;
@@ -31,6 +32,7 @@ h1 {
     overflow-y: auto;
 }
 
+/* Style pour les tableaux */
 .board {
     background-color: #e2e4e6;
     border-radius: 5px;
@@ -39,6 +41,7 @@ h1 {
     width: 300px;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .board-header {
@@ -51,21 +54,59 @@ h1 {
     margin: 0;
 }
 
+.board-title-edit {
+    display: none;
+    width: 100%;
+}
+
+.board:hover .board-title {
+    display: none;
+}
+
+.board:hover .board-title-edit {
+    display: block;
+}
+
+/* Style pour les listes */
 .list {
     background-color: #dfe1e6;
     border-radius: 5px;
     padding: 0.5rem;
     margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
+.list-title-edit {
+    display: none;
+    width: 100%;
+}
+
+.list:hover .list-title {
+    display: none;
+}
+
+.list:hover .list-title-edit {
+    display: block;
+}
+
+/* Style pour les cartes */
 .card {
     background-color: white;
     border-radius: 3px;
     padding: 0.5rem;
     margin-top: 0.5rem;
     box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Boutons */
 button {
     background-color: #5aac44;
     color: white;
@@ -73,8 +114,39 @@ button {
     padding: 0.5rem 1rem;
     border-radius: 3px;
     cursor: pointer;
+    margin-top: 5px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 button:hover {
     background-color: #61bd4f;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-button,
+.delete-button {
+    background-color: transparent;
+    color: #333;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+    color: red;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #boards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .board {
+        width: 90%;
+        margin: 0.5rem 0;
+    }
 }
