@@ -1,23 +1,23 @@
 /* Style général pour l'application */
 body {
-    font-family: 'Inter', sans-serif; /* Police moderne et lisible */
+    font-family: 'Inter', sans-serif;
 }
 
 /* Palette de couleurs */
 .bg-primary {
-    background-color: #3b82f6; /* Bleu vif pour les éléments interactifs */
+    background-color: #3b82f6;
 }
 
 .bg-secondary {
-    background-color: #f1f5f9; /* Gris clair pour les arrière-plans */
+    background-color: #f1f5f9;
 }
 
 .text-primary {
-    color: #1e3a8a; /* Bleu foncé pour les titres */
+    color: #1e3a8a;
 }
 
 .text-secondary {
-    color: #6b7280; /* Gris foncé pour les sous-titres */
+    color: #6b7280;
 }
 
 /* Amélioration du style des tableaux */
@@ -25,8 +25,8 @@ body {
     min-width: 300px;
     max-width: 300px;
     background-color: white;
-    border-radius: 0.75rem; /* Bordures arrondies pour un aspect moderne */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombrage doux pour donner de la profondeur */
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -34,7 +34,7 @@ body {
 }
 
 .board:hover {
-    transform: translateY(-2px); /* Légère élévation au survol */
+    transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
@@ -58,11 +58,11 @@ body {
 }
 
 .card:hover {
-    transform: scale(1.03); /* Agrandissement subtil au survol */
+    transform: scale(1.03);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Style des boutons emojis pour les actions (modifier, supprimer, dupliquer) */
+/* Style des boutons emojis */
 .emoji-button {
     margin: 0 4px;
     padding: 0;
@@ -74,13 +74,13 @@ body {
 }
 
 .emoji-button:hover {
-    transform: scale(1.2); /* Agrandissement au survol */
+    transform: scale(1.2);
 }
 
 /* Amélioration de l'apparence générale */
 #app {
     max-width: 1200px;
-    margin: 0 auto; /* Centrage du contenu principal */
+    margin: 0 auto;
 }
 
 #boards-container {
