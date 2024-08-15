@@ -1,5 +1,8 @@
 document.getElementById('create-board').addEventListener('click', createBoard);
 
+/**
+ * Crée un nouveau tableau et l'enregistre dans le stockage local.
+ */
 function createBoard() {
     const boardTitle = prompt('Entrez le titre du tableau :');
     if (!boardTitle) return;
@@ -14,6 +17,10 @@ function createBoard() {
     renderBoards();
 }
 
+/**
+ * Crée une nouvelle liste pour un tableau donné.
+ * @param {number} boardId - L'identifiant du tableau auquel ajouter la liste.
+ */
 function createList(boardId) {
     const listTitle = prompt('Entrez le titre de la liste :');
     if (!listTitle) return;
@@ -32,6 +39,11 @@ function createList(boardId) {
     renderBoards();
 }
 
+/**
+ * Crée une nouvelle carte pour une liste donnée dans un tableau.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à laquelle ajouter la carte.
+ */
 function createCard(boardId, listId) {
     const cardText = prompt('Entrez le texte de la carte :');
     if (!cardText) return;
@@ -54,6 +66,63 @@ function createCard(boardId, listId) {
     renderBoards();
 }
 
+/**
+ * Duplique une carte existante dans la même liste.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à dupliquer.
+ */
+function duplicateCard(boardId, listId, cardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+    const card = list.cards.find(c => c.id === cardId);
+
+    const duplicatedCard = { ...card, id: Date.now() }; // Copie de la carte avec un nouvel ID unique
+    list.cards.push(duplicatedCard);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Duplique une liste existante dans le même tableau.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à dupliquer.
+ */
+function duplicateList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+
+    const duplicatedList = { ...list, id: Date.now(), cards: [...list.cards] }; // Copie de la liste avec un nouvel ID et les cartes associées
+    board.lists.push(duplicatedList);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Duplique un tableau existant.
+ * @param {number} boardId - L'identifiant du tableau à dupliquer.
+ */
+function duplicateBoard(boardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+
+    const duplicatedBoard = { ...board, id: Date.now(), lists: board.lists.map(list => ({ ...list, id: Date.now(), cards: [...list.cards] })) }; // Copie du tableau avec ses listes et cartes
+    boards.push(duplicatedBoard);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Modifie une carte existante.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à modifier.
+ */
 function editCard(boardId, listId, cardId) {
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
@@ -73,6 +142,12 @@ function editCard(boardId, listId, cardId) {
     renderBoards();
 }
 
+/**
+ * Supprime une carte d'une liste donnée.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à supprimer.
+ */
 function deleteCard(boardId, listId, cardId) {
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
@@ -83,6 +158,11 @@ function deleteCard(boardId, listId, cardId) {
     renderBoards();
 }
 
+/**
+ * Modifie une liste existante.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à modifier.
+ */
 function editList(boardId, listId) {
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
@@ -95,6 +175,11 @@ function editList(boardId, listId) {
     renderBoards();
 }
 
+/**
+ * Supprime une liste d'un tableau donné.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à supprimer.
+ */
 function deleteList(boardId, listId) {
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
@@ -104,6 +189,10 @@ function deleteList(boardId, listId) {
     renderBoards();
 }
 
+/**
+ * Modifie un tableau existant.
+ * @param {number} boardId - L'identifiant du tableau à modifier.
+ */
 function editBoard(boardId) {
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
@@ -115,6 +204,10 @@ function editBoard(boardId) {
     renderBoards();
 }
 
+/**
+ * Supprime un tableau donné.
+ * @param {number} boardId - L'identifiant du tableau à supprimer.
+ */
 function deleteBoard(boardId) {
     let boards = getBoards();
     boards = boards.filter(b => b.id !== boardId);
@@ -123,6 +216,9 @@ function deleteBoard(boardId) {
     renderBoards();
 }
 
+/**
+ * Affiche les tableaux et leurs listes/cartes dans l'interface.
+ */
 function renderBoards() {
     const boardsContainer = document.getElementById('boards-container');
     boardsContainer.innerHTML = '';
@@ -148,16 +244,22 @@ function renderBoards() {
         deleteBoardBtn.textContent = '🗑️';
         deleteBoardBtn.className = 'emoji-button text-red-500';
 
+        const duplicateBoardBtn = document.createElement('button');
+        duplicateBoardBtn.textContent = '📄';
+        duplicateBoardBtn.className = 'emoji-button text-green-500';
+
         const addListBtn = document.createElement('button');
         addListBtn.textContent = '➕';
         addListBtn.className = 'emoji-button text-green-500';
 
         editBoardBtn.addEventListener('click', () => editBoard(board.id));
         deleteBoardBtn.addEventListener('click', () => deleteBoard(board.id));
+        duplicateBoardBtn.addEventListener('click', () => duplicateBoard(board.id));
         addListBtn.addEventListener('click', () => createList(board.id));
 
         boardHeader.appendChild(title);
         boardHeader.appendChild(editBoardBtn);
+        boardHeader.appendChild(duplicateBoardBtn);
         boardHeader.appendChild(deleteBoardBtn);
         boardHeader.appendChild(addListBtn);
         boardElement.appendChild(boardHeader);
@@ -181,16 +283,22 @@ function renderBoards() {
             deleteListBtn.textContent = '🗑️';
             deleteListBtn.className = 'emoji-button text-red-500';
 
+            const duplicateListBtn = document.createElement('button');
+            duplicateListBtn.textContent = '📄';
+            duplicateListBtn.className = 'emoji-button text-green-500';
+
             const addCardBtn = document.createElement('button');
             addCardBtn.textContent = '➕';
             addCardBtn.className = 'emoji-button text-green-500';
 
             editListBtn.addEventListener('click', () => editList(board.id, list.id));
             deleteListBtn.addEventListener('click', () => deleteList(board.id, list.id));
+            duplicateListBtn.addEventListener('click', () => duplicateList(board.id, list.id));
             addCardBtn.addEventListener('click', () => createCard(board.id, list.id));
 
             listHeader.appendChild(listTitle);
             listHeader.appendChild(editListBtn);
+            listHeader.appendChild(duplicateListBtn);
             listHeader.appendChild(deleteListBtn);
             listHeader.appendChild(addCardBtn);
             listElement.appendChild(listHeader);
@@ -218,11 +326,17 @@ function renderBoards() {
                 deleteCardBtn.textContent = '🗑️';
                 deleteCardBtn.className = 'emoji-button text-red-500';
 
+                const duplicateCardBtn = document.createElement('button');
+                duplicateCardBtn.textContent = '📄';
+                duplicateCardBtn.className = 'emoji-button text-green-500';
+
                 editCardBtn.addEventListener('click', () => editCard(board.id, list.id, card.id));
                 deleteCardBtn.addEventListener('click', () => deleteCard(board.id, list.id, card.id));
+                duplicateCardBtn.addEventListener('click', () => duplicateCard(board.id, list.id, card.id));
 
                 cardHeader.appendChild(cardText);
                 cardHeader.appendChild(editCardBtn);
+                cardHeader.appendChild(duplicateCardBtn);
                 cardHeader.appendChild(deleteCardBtn);
 
                 cardElement.appendChild(cardHeader);
@@ -259,6 +373,12 @@ function renderBoards() {
     });
 }
 
+/**
+ * Détermine l'élément sous la carte glissée pour faciliter le repositionnement.
+ * @param {Element} container - Le conteneur des cartes.
+ * @param {number} y - La position verticale de la souris.
+ * @returns {Element} - L'élément après lequel insérer la carte.
+ */
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
 
@@ -273,18 +393,31 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+/**
+ * Récupère les tableaux enregistrés dans le stockage local.
+ * @returns {Array} - La liste des tableaux sauvegardés.
+ */
 function getBoards() {
     return JSON.parse(localStorage.getItem('boards')) || [];
 }
 
+/**
+ * Enregistre un nouveau tableau dans le stockage local.
+ * @param {Object} board - Le tableau à enregistrer.
+ */
 function saveBoard(board) {
     const boards = getBoards();
     boards.push(board);
     saveBoards(boards);
 }
 
+/**
+ * Enregistre tous les tableaux dans le stockage local.
+ * @param {Array} boards - La liste des tableaux à sauvegarder.
+ */
 function saveBoards(boards) {
     localStorage.setItem('boards', JSON.stringify(boards));
 }
 
+// Affiche les tableaux existants au chargement de la page
 renderBoards();
