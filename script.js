@@ -73,6 +73,56 @@ function editCard(boardId, listId, cardId) {
     renderBoards();
 }
 
+function deleteCard(boardId, listId, cardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+    list.cards = list.cards.filter(c => c.id !== cardId);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+function editList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+
+    const newTitle = prompt('Modifier le titre de la liste:', list.title);
+    if (newTitle !== null) list.title = newTitle;
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+function deleteList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    board.lists = board.lists.filter(l => l.id !== listId);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+function editBoard(boardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+
+    const newTitle = prompt('Modifier le titre du tableau:', board.title);
+    if (newTitle !== null) board.title = newTitle;
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+function deleteBoard(boardId) {
+    let boards = getBoards();
+    boards = boards.filter(b => b.id !== boardId);
+
+    saveBoards(boards);
+    renderBoards();
+}
+
 function renderBoards() {
     const boardsContainer = document.getElementById('boards-container');
     boardsContainer.innerHTML = '';
@@ -90,12 +140,25 @@ function renderBoards() {
         title.className = 'board-title text-xl font-bold text-gray-700';
         title.textContent = board.title;
 
+        const editBoardBtn = document.createElement('button');
+        editBoardBtn.textContent = '✏️';
+        editBoardBtn.className = 'emoji-button text-blue-500';
+
+        const deleteBoardBtn = document.createElement('button');
+        deleteBoardBtn.textContent = '🗑️';
+        deleteBoardBtn.className = 'emoji-button text-red-500';
+
         const addListBtn = document.createElement('button');
-        addListBtn.textContent = 'Ajouter Liste';
-        addListBtn.className = 'bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600';
+        addListBtn.textContent = '➕';
+        addListBtn.className = 'emoji-button text-green-500';
+
+        editBoardBtn.addEventListener('click', () => editBoard(board.id));
+        deleteBoardBtn.addEventListener('click', () => deleteBoard(board.id));
         addListBtn.addEventListener('click', () => createList(board.id));
 
         boardHeader.appendChild(title);
+        boardHeader.appendChild(editBoardBtn);
+        boardHeader.appendChild(deleteBoardBtn);
         boardHeader.appendChild(addListBtn);
         boardElement.appendChild(boardHeader);
 
@@ -103,22 +166,42 @@ function renderBoards() {
             const listElement = document.createElement('div');
             listElement.className = 'list p-2 bg-gray-100 rounded mt-4';
 
+            const listHeader = document.createElement('div');
+            listHeader.className = 'list-header flex justify-between items-center';
+
             const listTitle = document.createElement('h3');
             listTitle.textContent = list.title;
             listTitle.className = 'text-lg font-semibold text-gray-800';
 
+            const editListBtn = document.createElement('button');
+            editListBtn.textContent = '✏️';
+            editListBtn.className = 'emoji-button text-blue-500';
+
+            const deleteListBtn = document.createElement('button');
+            deleteListBtn.textContent = '🗑️';
+            deleteListBtn.className = 'emoji-button text-red-500';
+
             const addCardBtn = document.createElement('button');
-            addCardBtn.textContent = 'Ajouter Carte';
-            addCardBtn.className = 'bg-blue-500 text-white px-2 py-1 mt-2 rounded hover:bg-blue-600';
+            addCardBtn.textContent = '➕';
+            addCardBtn.className = 'emoji-button text-green-500';
+
+            editListBtn.addEventListener('click', () => editList(board.id, list.id));
+            deleteListBtn.addEventListener('click', () => deleteList(board.id, list.id));
             addCardBtn.addEventListener('click', () => createCard(board.id, list.id));
 
-            listElement.appendChild(listTitle);
-            listElement.appendChild(addCardBtn);
+            listHeader.appendChild(listTitle);
+            listHeader.appendChild(editListBtn);
+            listHeader.appendChild(deleteListBtn);
+            listHeader.appendChild(addCardBtn);
+            listElement.appendChild(listHeader);
 
             list.cards.forEach(card => {
                 const cardElement = document.createElement('div');
                 cardElement.className = `card p-2 mt-2 rounded shadow ${card.color}`;
                 cardElement.draggable = true;
+
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'card-header flex justify-between items-center';
 
                 const cardText = document.createElement('div');
                 cardText.textContent = card.text;
@@ -127,7 +210,22 @@ function renderBoards() {
                 cardDescription.className = 'card-description';
                 cardDescription.textContent = card.description;
 
-                cardElement.appendChild(cardText);
+                const editCardBtn = document.createElement('button');
+                editCardBtn.textContent = '✏️';
+                editCardBtn.className = 'emoji-button text-blue-500';
+
+                const deleteCardBtn = document.createElement('button');
+                deleteCardBtn.textContent = '🗑️';
+                deleteCardBtn.className = 'emoji-button text-red-500';
+
+                editCardBtn.addEventListener('click', () => editCard(board.id, list.id, card.id));
+                deleteCardBtn.addEventListener('click', () => deleteCard(board.id, list.id, card.id));
+
+                cardHeader.appendChild(cardText);
+                cardHeader.appendChild(editCardBtn);
+                cardHeader.appendChild(deleteCardBtn);
+
+                cardElement.appendChild(cardHeader);
                 if (card.description) {
                     cardElement.appendChild(cardDescription);
                 }
@@ -139,8 +237,6 @@ function renderBoards() {
                 cardElement.addEventListener('dragend', () => {
                     cardElement.classList.remove('dragging');
                 });
-
-                cardElement.addEventListener('click', () => editCard(board.id, list.id, card.id));
 
                 listElement.appendChild(cardElement);
             });
