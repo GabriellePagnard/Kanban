@@ -25,9 +25,11 @@ Bienvenue dans Kanban ! Ce projet vise à fournir un outil de gestion de tâches
 
 Voici à quoi ressemble l'application :   
 
-![screenshot démarrage](./Ressources/screenshot%20démarrage.jpg)   
+![screenshot démarrage](/ressources/screenshot_demarrage.jpg)   
 
-![screenshot utilisation kanban](./Ressources/screenshot_utilisation_kanban.jpg)   
+![screenshot utilisation kanban](/ressources/screenshot_utilisation_kanban.jpg)   
+
+[Démo vidéo du projet 🎥](https://www.youtube.com/watch?v=jUek3quRb5A)
 
 <br>
 <br>
@@ -130,5 +132,8 @@ GitHub : [GabriellePagnard](https://github.com/GabriellePagnard)
 <br>
 <br>
 
-Merci d'avoir pris le temps de découvrir Kanban. Nous espérons que cet outil vous aidera à organiser vos projets avec efficacité et plaisir ! 🎉
+Merci d'avoir pris le temps de découvrir Kanban. Nous espérons que cet outil vous aidera à organiser vos projets avec efficacité et plaisir ! 🎉   
+
+<br>
+
 N'hésitez pas à laisser un ⭐ si vous aimez ce projet !   

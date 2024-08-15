@@ -1,9 +1,5 @@
 document.getElementById('create-board').addEventListener('click', createBoard);
 
-let draggedCard = null;
-let touchStartY = 0;
-let touchMoveY = 0;
-
 /**
  * Crée un nouveau tableau et l'enregistre dans le stockage local.
  */
@@ -12,9 +8,9 @@ function createBoard() {
     if (!boardTitle) return;
 
     const board = {
-        id: Date.now(),
+        id: Date.now(), // Identifiant unique basé sur l'horodatage
         title: boardTitle,
-        lists: []
+        lists: [] // Initialise une liste vide pour contenir les listes de tâches
     };
 
     saveBoard(board);
@@ -30,14 +26,14 @@ function createList(boardId) {
     if (!listTitle) return;
 
     const list = {
-        id: Date.now(),
+        id: Date.now(), // Identifiant unique pour la liste
         title: listTitle,
-        cards: []
+        cards: [] // Initialise une liste vide pour contenir les cartes
     };
 
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
-    board.lists.push(list);
+    board.lists.push(list); // Ajoute la nouvelle liste au tableau
 
     saveBoards(boards);
     renderBoards();
@@ -55,27 +51,174 @@ function createCard(boardId, listId) {
     const cardDescription = prompt('Entrez une description pour la carte :');
 
     const card = {
-        id: Date.now(),
+        id: Date.now(), // Identifiant unique pour la carte
         text: cardText,
-        description: cardDescription || '',
-        color: 'bg-white'
+        description: cardDescription || '', // Description facultative
+        color: 'bg-white' // Couleur par défaut de la carte
     };
 
     const boards = getBoards();
     const board = boards.find(b => b.id === boardId);
     const list = board.lists.find(l => l.id === listId);
-    list.cards.push(card);
+    list.cards.push(card); // Ajoute la carte à la liste
 
     saveBoards(boards);
     renderBoards();
 }
 
 /**
- * Gère l'affichage des tableaux et permet le drag-and-drop pour les cartes.
+ * Duplique une carte existante dans la même liste.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à dupliquer.
+ */
+function duplicateCard(boardId, listId, cardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+    const card = list.cards.find(c => c.id === cardId);
+
+    const duplicatedCard = { ...card, id: Date.now() }; // Crée une copie de la carte avec un nouvel ID
+    list.cards.push(duplicatedCard); // Ajoute la carte dupliquée à la liste
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Duplique une liste existante dans le même tableau.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à dupliquer.
+ */
+function duplicateList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+
+    const duplicatedList = { ...list, id: Date.now(), cards: [...list.cards] }; // Copie de la liste avec un nouvel ID et les cartes associées
+    board.lists.push(duplicatedList); // Ajoute la liste dupliquée au tableau
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Duplique un tableau existant.
+ * @param {number} boardId - L'identifiant du tableau à dupliquer.
+ */
+function duplicateBoard(boardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+
+    const duplicatedBoard = { ...board, id: Date.now(), lists: board.lists.map(list => ({ ...list, id: Date.now(), cards: [...list.cards] })) }; // Copie du tableau avec ses listes et cartes
+    boards.push(duplicatedBoard); // Ajoute le tableau dupliqué
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Modifie une carte existante.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à modifier.
+ */
+function editCard(boardId, listId, cardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+    const card = list.cards.find(c => c.id === cardId);
+
+    const newText = prompt('Modifier le texte de la carte:', card.text);
+    if (newText !== null) card.text = newText;
+
+    const newDescription = prompt('Modifier la description de la carte:', card.description);
+    if (newDescription !== null) card.description = newDescription;
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Supprime une carte d'une liste donnée.
+ * @param {number} boardId - L'identifiant du tableau contenant la carte.
+ * @param {number} listId - L'identifiant de la liste contenant la carte.
+ * @param {number} cardId - L'identifiant de la carte à supprimer.
+ */
+function deleteCard(boardId, listId, cardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+    list.cards = list.cards.filter(c => c.id !== cardId); // Filtre les cartes pour supprimer celle avec l'ID donné
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Modifie une liste existante.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à modifier.
+ */
+function editList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    const list = board.lists.find(l => l.id === listId);
+
+    const newTitle = prompt('Modifier le titre de la liste:', list.title);
+    if (newTitle !== null) list.title = newTitle;
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Supprime une liste d'un tableau donné.
+ * @param {number} boardId - L'identifiant du tableau contenant la liste.
+ * @param {number} listId - L'identifiant de la liste à supprimer.
+ */
+function deleteList(boardId, listId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+    board.lists = board.lists.filter(l => l.id !== listId); // Filtre les listes pour supprimer celle avec l'ID donné
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Modifie un tableau existant.
+ * @param {number} boardId - L'identifiant du tableau à modifier.
+ */
+function editBoard(boardId) {
+    const boards = getBoards();
+    const board = boards.find(b => b.id === boardId);
+
+    const newTitle = prompt('Modifier le titre du tableau:', board.title);
+    if (newTitle !== null) board.title = newTitle;
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Supprime un tableau donné.
+ * @param {number} boardId - L'identifiant du tableau à supprimer.
+ */
+function deleteBoard(boardId) {
+    let boards = getBoards();
+    boards = boards.filter(b => b.id !== boardId); // Filtre les tableaux pour supprimer celui avec l'ID donné
+
+    saveBoards(boards);
+    renderBoards();
+}
+
+/**
+ * Affiche les tableaux et leurs listes/cartes dans l'interface.
  */
 function renderBoards() {
     const boardsContainer = document.getElementById('boards-container');
-    boardsContainer.innerHTML = '';
+    boardsContainer.innerHTML = ''; // Vide le conteneur pour réafficher les tableaux
 
     const boards = getBoards();
 
@@ -90,15 +233,36 @@ function renderBoards() {
         title.className = 'board-title text-xl font-bold text-gray-700';
         title.textContent = board.title;
 
+        // Boutons d'action pour le tableau : Modifier, Dupliquer, Supprimer, Ajouter une liste
+        const editBoardBtn = document.createElement('button');
+        editBoardBtn.textContent = '✏️';
+        editBoardBtn.className = 'emoji-button text-blue-500';
+
+        const deleteBoardBtn = document.createElement('button');
+        deleteBoardBtn.textContent = '🗑️';
+        deleteBoardBtn.className = 'emoji-button text-red-500';
+
+        const duplicateBoardBtn = document.createElement('button');
+        duplicateBoardBtn.textContent = '📄';
+        duplicateBoardBtn.className = 'emoji-button text-green-500';
+
         const addListBtn = document.createElement('button');
         addListBtn.textContent = '➕';
         addListBtn.className = 'emoji-button text-green-500';
+
+        editBoardBtn.addEventListener('click', () => editBoard(board.id));
+        deleteBoardBtn.addEventListener('click', () => deleteBoard(board.id));
+        duplicateBoardBtn.addEventListener('click', () => duplicateBoard(board.id));
         addListBtn.addEventListener('click', () => createList(board.id));
 
         boardHeader.appendChild(title);
+        boardHeader.appendChild(editBoardBtn);
+        boardHeader.appendChild(duplicateBoardBtn);
+        boardHeader.appendChild(deleteBoardBtn);
         boardHeader.appendChild(addListBtn);
         boardElement.appendChild(boardHeader);
 
+        // Affichage des listes et de leurs cartes
         board.lists.forEach(list => {
             const listElement = document.createElement('div');
             listElement.className = 'list p-2 bg-gray-100 rounded mt-4';
@@ -110,15 +274,36 @@ function renderBoards() {
             listTitle.textContent = list.title;
             listTitle.className = 'text-lg font-semibold text-gray-800';
 
+            // Boutons d'action pour la liste : Modifier, Dupliquer, Supprimer, Ajouter une carte
+            const editListBtn = document.createElement('button');
+            editListBtn.textContent = '✏️';
+            editListBtn.className = 'emoji-button text-blue-500';
+
+            const deleteListBtn = document.createElement('button');
+            deleteListBtn.textContent = '🗑️';
+            deleteListBtn.className = 'emoji-button text-red-500';
+
+            const duplicateListBtn = document.createElement('button');
+            duplicateListBtn.textContent = '📄';
+            duplicateListBtn.className = 'emoji-button text-green-500';
+
             const addCardBtn = document.createElement('button');
             addCardBtn.textContent = '➕';
             addCardBtn.className = 'emoji-button text-green-500';
+
+            editListBtn.addEventListener('click', () => editList(board.id, list.id));
+            deleteListBtn.addEventListener('click', () => deleteList(board.id, list.id));
+            duplicateListBtn.addEventListener('click', () => duplicateList(board.id, list.id));
             addCardBtn.addEventListener('click', () => createCard(board.id, list.id));
 
             listHeader.appendChild(listTitle);
+            listHeader.appendChild(editListBtn);
+            listHeader.appendChild(duplicateListBtn);
+            listHeader.appendChild(deleteListBtn);
             listHeader.appendChild(addCardBtn);
             listElement.appendChild(listHeader);
 
+            // Affichage des cartes
             list.cards.forEach(card => {
                 const cardElement = document.createElement('div');
                 cardElement.className = `card p-2 mt-2 rounded shadow ${card.color}`;
@@ -134,40 +319,39 @@ function renderBoards() {
                 cardDescription.className = 'card-description';
                 cardDescription.textContent = card.description;
 
+                // Boutons d'action pour la carte : Modifier, Dupliquer, Supprimer
+                const editCardBtn = document.createElement('button');
+                editCardBtn.textContent = '✏️';
+                editCardBtn.className = 'emoji-button text-blue-500';
+
+                const deleteCardBtn = document.createElement('button');
+                deleteCardBtn.textContent = '🗑️';
+                deleteCardBtn.className = 'emoji-button text-red-500';
+
+                const duplicateCardBtn = document.createElement('button');
+                duplicateCardBtn.textContent = '📄';
+                duplicateCardBtn.className = 'emoji-button text-green-500';
+
+                editCardBtn.addEventListener('click', () => editCard(board.id, list.id, card.id));
+                deleteCardBtn.addEventListener('click', () => deleteCard(board.id, list.id, card.id));
+                duplicateCardBtn.addEventListener('click', () => duplicateCard(board.id, list.id, card.id));
+
                 cardHeader.appendChild(cardText);
+                cardHeader.appendChild(editCardBtn);
+                cardHeader.appendChild(duplicateCardBtn);
+                cardHeader.appendChild(deleteCardBtn);
+
                 cardElement.appendChild(cardHeader);
-                cardElement.appendChild(cardDescription);
+                if (card.description) {
+                    cardElement.appendChild(cardDescription);
+                }
 
-                cardElement.addEventListener('dragstart', (e) => {
-                    draggedCard = cardElement;
-                    e.target.classList.add('dragging');
+                cardElement.addEventListener('dragstart', () => {
+                    cardElement.classList.add('dragging');
                 });
 
-                cardElement.addEventListener('dragend', (e) => {
-                    draggedCard = null;
-                    e.target.classList.remove('dragging');
-                });
-
-                // Gestion des événements tactiles pour mobile
-                cardElement.addEventListener('touchstart', (e) => {
-                    touchStartY = e.touches[0].clientY;
-                    draggedCard = cardElement;
-                    e.target.classList.add('dragging');
-                });
-
-                cardElement.addEventListener('touchmove', (e) => {
-                    touchMoveY = e.touches[0].clientY;
-                    const afterElement = getDragAfterElement(listElement, touchMoveY);
-                    if (afterElement == null) {
-                        listElement.appendChild(draggedCard);
-                    } else {
-                        listElement.insertBefore(draggedCard, afterElement);
-                    }
-                });
-
-                cardElement.addEventListener('touchend', (e) => {
-                    draggedCard = null;
-                    e.target.classList.remove('dragging');
+                cardElement.addEventListener('dragend', () => {
+                    cardElement.classList.remove('dragging');
                 });
 
                 listElement.appendChild(cardElement);
@@ -175,11 +359,12 @@ function renderBoards() {
 
             listElement.addEventListener('dragover', (e) => {
                 e.preventDefault();
+                const draggingCard = document.querySelector('.dragging');
                 const afterElement = getDragAfterElement(listElement, e.clientY);
                 if (afterElement == null) {
-                    listElement.appendChild(draggedCard);
+                    listElement.appendChild(draggingCard);
                 } else {
-                    listElement.insertBefore(draggedCard, afterElement);
+                    listElement.insertBefore(draggingCard, afterElement);
                 }
             });
 
@@ -191,7 +376,7 @@ function renderBoards() {
 }
 
 /**
- * Récupère l'élément suivant où insérer la carte lors du drag-and-drop.
+ * Détermine l'élément sous la carte glissée pour faciliter le repositionnement.
  * @param {Element} container - Le conteneur des cartes.
  * @param {number} y - La position verticale de la souris.
  * @returns {Element} - L'élément après lequel insérer la carte.
