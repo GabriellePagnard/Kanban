@@ -55,10 +55,10 @@ Pour l'utiliser : [Kanban 📝](https://gabriellepagnard.github.io/Kanban/)
 
 ## 📂 Fichiers du Projet   
 
-- index.html : Structure HTML de la page web.   
-- style.css : Styles CSS pour l'apparence de l'application   
-- script.js : Script JavaScript pour la logique de recherche, la gestion des résultats et les interactions avec l'API    
-- ressources/ : Dossier contenant les images et les icônes (y compris le favicon et les captures d'écran)   
+- index.html : Structure de l'application   
+- style.css : Styles personnalisés en complément de TailwindCSS   
+- script.js : Logique des fonctionnalités Kanban    
+- ressources/ : Images, icônes et autres ressources   
 
 <br>
 <br>
